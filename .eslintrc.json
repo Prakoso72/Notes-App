@@ -1,7 +1,5 @@
 {
     "env": {
-        "browser": true,
-        "commonjs": true,
         "es2021": true,
         "node": true
     },
@@ -9,7 +7,7 @@
         "standard"
     ],
     "parserOptions": {
-        "ecmaVersion": 12
+        "ecmaVersion": "latest"
     },
     "rules": {
         "semi": [
