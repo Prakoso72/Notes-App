@@ -2,10 +2,10 @@
   "name": "notes-app",
   "version": "1.0.0",
   "description": "an application for keep notes. it's server side of dicoding notes apps",
-  "main": "server.js",
+  "main": "./src/server.js",
   "scripts": {
     "test": "jest",
-    "start": "nodemon server.js",
+    "start": "nodemon ./src/server.js",
     "lint": "eslint ./"
   },
   "author": "Fatah Prakoso, fatahap27@gmail.com",
