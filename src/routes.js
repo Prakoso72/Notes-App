@@ -2,7 +2,7 @@ const {
   addNote,
   getNotes,
   getANote,
-  replaceNote,
+  updateNote,
   deleteNote
 } = require('./handlers');
 
@@ -25,7 +25,7 @@ module.exports = [
   {
     method: 'PUT',
     path: '/notes/{id}',
-    handler: replaceNote
+    handler: updateNote
   },
   {
     method: 'DELETE',
