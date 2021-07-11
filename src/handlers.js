@@ -109,7 +109,7 @@ const updateNote = (request, h) => {
 
   const response = h.response({
     status: 'success',
-    message: 'Catatan berhasil diperbaharui'
+    message: 'Catatan berhasil diperbarui'
   });
 
   return response;
