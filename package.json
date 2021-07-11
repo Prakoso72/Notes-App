@@ -4,8 +4,8 @@
   "description": "an application for keep notes. it's server side of dicoding notes apps",
   "main": "./src/server.js",
   "scripts": {
-    "start-prod": "NODE_ENV=production node ./src/server.js",
-    "start-dev": "nodemon ./src/server.js",
+    "start-prod": "NODE_ENV=production nodemon ./src/server.js",
+    "start-dev": "node ./src/server.js",
     "lint": "eslint ./"
   },
   "author": "Fatah Prakoso, fatahap27@gmail.com",
