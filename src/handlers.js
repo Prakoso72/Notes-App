@@ -23,7 +23,7 @@ const addNote = (request, h) => {
       status: 'success',
       message: 'Catatan berhasil ditambahkan',
       data: {
-        noteId: 'V09YExygSUYogwWJ'
+        noteId: id
       }
     })
       .code(201)
