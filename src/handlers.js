@@ -1,25 +1,15 @@
-const notes = require('./notes');
+const Note = require('./notes');
+const transact = require('./transact/transact');
 
-const addNote = (request, h) => {
+const addNote = async (request, h) => {
   const { title, tags, body } = request.payload;
 
-  const id = makeID();
-  const createdAt = new Date().toISOString();
-  const updatedAt = createdAt;
+  let response;
 
-  const note = {
-    id,
-    title,
-    createdAt,
-    updatedAt,
-    tags,
-    body
-  };
+  const id = await transact.addNote(title, body, tags);
 
-  notes.push(note);
-
-  if (notes.some(note => note.id === id)) {
-    const response = h.response({
+  if (id !== -1) {
+    response = h.response({
       status: 'success',
       message: 'Catatan berhasil ditambahkan',
       data: {
@@ -28,123 +18,147 @@ const addNote = (request, h) => {
     })
       .code(201)
       .header('content-type', 'application/json');
-
-    return response;
+  } else {
+    response = h.response({
+      status: 'error',
+      message: 'Catatan gagal untuk ditambahkan'
+    })
+      .code(500)
+      .header('content-type', 'application/json');
   }
-
-  const response = h.response({
-    status: 'error',
-    message: 'Catatan gagal untuk ditambahkan'
-  })
-    .code(500)
-    .header('content-type', 'application/json');
 
   return response;
 };
 
-const getANote = (request, h) => {
+const getANote = async (request, h) => {
   const { id } = request.params;
 
-  const note = notes.find(note => note.id === id);
+  let response;
+
+  const transactNote = await transact.getANote(id);
+  const note = new Note(transactNote).getNote();
 
   if (note === undefined) {
-    const response = h.response({
+    response = h.response({
       status: 'fail',
       message: 'Catatan tidak ditemukan'
     })
       .code(404)
       .header('content-type', 'application/json');
-
-    return response;
+  } else if (note === -1) {
+    response = h.response({
+      status: 'Error',
+      message: 'Server Error'
+    })
+      .code(500)
+      .header('content-type', 'application/json');
+  } else {
+    response = h.response({
+      status: 'success',
+      data: {
+        note
+      }
+    })
+      .code(200)
+      .header('content-type', 'application/json');
   }
 
-  const response = h.response({
-    status: 'success',
-    data: {
-      note
-    }
-  })
-    .code(200)
-    .header('content-type', 'application/json');
+  return response;
+};
+
+const getNotes = async (request, h) => {
+  let response;
+
+  const allNote = await transact.getAllNote();
+
+  const notes = [];
+  for (let i = 0; i < allNote.length; i++) {
+    if ((i + 1) === allNote.length) notes.push(allNote[i]);
+    else if (allNote[i].ID === allNote[i + 1].ID) {
+      allNote[i + 1].Tag = typeof (allNote[i].Tag) === 'object' ? [...allNote[i].Tag, allNote[i + 1].Tag] : [allNote[i].Tag, allNote[i + 1].Tag];
+    } else notes.push(allNote[i]);
+  }
+
+  if (allNote === -1) {
+    response = h.response({
+      status: 'Error',
+      message: 'Server Error'
+    })
+      .code(500)
+      .header('content-type', 'application/json');
+  } else {
+    response = h.response({
+      status: 'success',
+      data: {
+        notes
+      }
+    })
+      .code(200)
+      .header('content-type', 'application/json');
+  }
 
   return response;
 };
 
-const getNotes = (request, h) => {
-  const response = h.response({
-    status: 'success',
-    data: {
-      notes
-    }
-  })
-    .code(200)
-    .header('content-type', 'application/json');
-
-  return response;
-};
-
-const updateNote = (request, h) => {
+const updateNote = async (request, h) => {
   const { id } = request.params;
-
   const { title, tags, body } = request.payload;
-  const updatedAt = new Date().toString();
 
-  const note = notes.find(note => note.id === id);
+  let response;
 
-  if (note === undefined) {
-    const response = h.response({
+  const transactStatus = await transact.updateNote(id, title, body, tags);
+  if (transactStatus === 0) {
+    response = h.response({
       status: 'fail',
       message: 'Gagal memperbarui catatan. Id catatan tidak ditemukan'
     })
       .code(404)
       .header('content-type', 'application/json');
-
-    return response;
+  } else if (transactStatus === -1) {
+    response = h.response({
+      status: 'Error',
+      message: 'Server Error'
+    })
+      .code(500)
+      .header('content-type', 'application/json');
+  } else {
+    response = h.response({
+      status: 'success',
+      message: 'Catatan berhasil diperbarui'
+    });
   }
-
-  note.title = title;
-  note.tags = tags;
-  note.body = body;
-  note.updatedAt = updatedAt;
-
-  const response = h.response({
-    status: 'success',
-    message: 'Catatan berhasil diperbarui'
-  });
 
   return response;
 };
 
-const deleteNote = (request, h) => {
+const deleteNote = async (request, h) => {
   const { id } = request.params;
 
-  const indexNote = notes.findIndex(note => note.id === id);
+  let response;
 
-  if (indexNote === -1) {
-    const response = h.response({
-      status: 'fail',
-      message: 'Catatan gagal dihapus. Id catatan tidak ditemukan'
+  const transactStatus = await transact.removeNote(id);
+  if (transactStatus === -1) {
+    response = h.response({
+      status: 'Error',
+      message: 'Server Error'
+    })
+      .code(500)
+      .header('content-type', 'application/json');
+  } else if (transactStatus === 0) {
+    response = h.response({
+      status: 'Fail',
+      message: 'Gagal menghapus catatan. Id catatan tidak ditemukan'
     })
       .code(404)
       .header('content-type', 'application/json');
-
-    return response;
+  } else {
+    response = h.response({
+      status: 'success',
+      message: 'Catatan berhasil dihapus'
+    });
   }
 
-  notes.splice(indexNote, 1);
-
-  const response = h.response({
-    status: 'success',
-    message: 'Catatan berhasil dihapus'
-  });
-
   return response;
-};
-
-const makeID = () => {
-  let id = '_' + Math.random().toString(36).substr(2, 9);
-  if (notes.find(note => note.id === id) !== undefined) id = makeID();
-  return id;
 };
 
 module.exports = { addNote, getANote, getNotes, updateNote, deleteNote };

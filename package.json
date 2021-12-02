@@ -5,7 +5,7 @@
   "main": "./src/server.js",
   "scripts": {
     "start-prod": "NODE_ENV=production DBUSER=admin DBPWD=admin node ./src/server.js",
-    "start-dev": "DBUSER=sa DBPWD=FatahPrakoso123 DBNAME=NOTES PORT=1433 nodemon ./src/server.js",
+    "start-dev": "DBUSER=sa DBPWD=FatahPrakoso123 DBNAME=NOTES DBPORT=1433 nodemon ./src/server.js",
     "lint": "eslint ./"
   },
   "author": "Fatah Prakoso, fatahap27@gmail.com",
